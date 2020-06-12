@@ -44,7 +44,6 @@ setup(
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-	classifiers=[
         'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
