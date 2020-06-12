@@ -62,8 +62,6 @@ setup(
 	'batching', 'pool', 'dataset'
     ],
     python_requires='>=3.0',
-    install_requires=[
-	'concurrency', 'multiprocessing'
-    ],
+    install_requires=[],
     extras_require={},
 )
