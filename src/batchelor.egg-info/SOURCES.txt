@@ -20,6 +20,5 @@ src/batchelor.egg-info/PKG-INFO
 src/batchelor.egg-info/SOURCES.txt
 src/batchelor.egg-info/dependency_links.txt
 src/batchelor.egg-info/not-zip-safe
-src/batchelor.egg-info/requires.txt
 src/batchelor.egg-info/top_level.txt
 tests/test_batchelor.py
