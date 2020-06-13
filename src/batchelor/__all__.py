@@ -1,5 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor as Tpool
-from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor as __Pool__
+from multiprocessing import cpu_count as __cpu__
 from time import sleep
 from os import system
 
@@ -21,21 +21,22 @@ def __checkpoint__(filename: str, save: bool = True, data: int = 0):
 def __write__(info, location):
     if info:
         with open(location, 'a') as f:
-            f.write(info)
+            for item in info:
+                f.write(str(item))
     return []
 
 
-def __visual__(items, keys=None, sep='\t', **kwargs):
+def __visual__(items, keys=False):
+    keys = keys or ["", "~", "+", "-"]
     system('cls || clear')
-    keys = ['', '~', '+', '-'] if keys else ['' for _ in range(len(items))]
-    print(*[f'{keys[i]}{items[i]}' for i in range(len(items))], sep, **kwargs)
+    print(*[f'{keys[i%len(keys)]}{items[i]}' for i in range(len(items))], sep='\t')
 
 
 class Batch:
     def __init__(
             self,
-            data: enumerate,
-            rate: int = cpu_count(),
+            data,
+            rate: int = __cpu__(),
             scale: int = 0,
             interval: float = 1,
             output: str = '_output.txt',
@@ -44,6 +45,16 @@ class Batch:
             checkpoint: callable = __checkpoint__,
             visual: callable = __visual__
     ):
+        copy = list(data)  # greater startup time, but still better then using a list
+        if isinstance(data, enumerate):
+            data = enumerate([x[1] for x in copy])
+        else:
+            data = copy
+        self.total = len(copy)
+        self.valid = 0
+        self.invalid = 0
+        self.workers = 0
+
         self.data = {'in': data, 'out': []}
         self.rate = int(max(rate, 2))
         self.scale = int(max(scale or self.rate, 2))
@@ -54,19 +65,18 @@ class Batch:
         self.checkpoint = checkpoint
         self.visual = visual
 
-        del data, rate, scale, interval, output, write, progress, checkpoint, visual  # free memory of duplicates
-
-        self.total = [x for x in self.data['in']][-1][0]
-        self.valid = 0
-        self.invalid = 0
-        self.workers = 0
-        self.pool = Tpool(max_workers=self.rate)
+        del copy, data, rate, scale, interval, output, write, progress, checkpoint, visual  # free memory of duplicates
+        self.pool = __Pool__(max_workers=self.rate)
 
     def start(self, fn):
         progress = self.checkpoint(self.progress, save=False)
 
-        def wrapper(fn2, *args):
-            value = fn2(*args)
+        def wrapper(args):  # yes I know, the lack of '*' is intentional
+            try:
+                value = args[0](*args[1:])
+            except Exception as e:
+                print(e)
+                value = False
             if value:
                 self.valid += 1
                 self.data['out'].append(value)
@@ -89,7 +99,7 @@ class Batch:
                 if index < progress:
                     continue  # skip
 
-                if index % self.rate * self.scale:
+                if index % (self.rate * self.scale):
                     sleep(self.interval)  # disperse time
                 else:
                     while self.workers > self.rate:  # wait until queue is acceptable

@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 
 setup(
     name='batchelor',
-    version='0.3.1',
+    version='0.3.15',
     license='LGPL-3.0-or-later',
     description='A simple, yet effective batching system using threadpoolexecutor.',
     long_description='%s\n%s' % (
