@@ -13,7 +13,7 @@ def __checkpoint__(filename: str, save: bool = True, data: int = 0):
             ))
         else:
             try:
-                data = int(f.read())
+                data = int(f.read() or 0)
             except: pass
     return data
 
@@ -56,7 +56,7 @@ class Batch:
 
         del data, rate, scale, interval, output, write, progress, checkpoint, visual  # free memory of duplicates
 
-        self.total = [x for x in self.data][-1][0]
+        self.total = [x for x in self.data['in']][-1][0]
         self.valid = 0
         self.invalid = 0
         self.workers = 0
