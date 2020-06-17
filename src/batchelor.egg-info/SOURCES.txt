@@ -14,8 +14,8 @@ setup.py
 tox.ini
 ci/bootstrap.py
 ci/requirements.txt
-src/batchelor/__all__.py
 src/batchelor/__init__.py
+src/batchelor/main.py
 src/batchelor.egg-info/PKG-INFO
 src/batchelor.egg-info/SOURCES.txt
 src/batchelor.egg-info/dependency_links.txt
