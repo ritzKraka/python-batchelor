@@ -37,7 +37,8 @@ def __checkpoint__(filename: str, save: bool = True, data: int = 0):
         else:
             try:
                 data = int(f.read() or 0)
-            except: pass
+            except:
+                pass
     return data
 
 
@@ -51,7 +52,7 @@ def __write__(info, location):
 
 def __visual__(items, keys=False):
     keys = keys or ["", "~", "+", "-"]
-    __system__('cls || clear')
+    system('cls || clear')
     print(*[f'{keys[i%len(keys)]}{items[i]}' for i in range(len(items))], sep='\t')
 
 
@@ -138,12 +139,16 @@ class Batch:
 
             self.pool.shutdown(wait=True)
         except:
-            try: self.pool.shutdown(wait='n' not in f'{input("finish (Y/n): ")}'.lower())
-            except: pass
+            try:
+                self.pool.shutdown(wait='n' not in f'{input("finish (Y/n): ")}'.lower())
+            except:
+                pass
         combo()
 
-        try: combo()
-        except: pass
+        try:
+            combo()
+        except:
+            pass
         combo()
 
     def help(self):
