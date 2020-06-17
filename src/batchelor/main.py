@@ -194,4 +194,4 @@ def launch(fn: callable, save=__save_name__, data=False, preset=False):
         Batch(data, *prompt(save, preset=preset)).start(fn)
     else:
         with open(input(f'data file (?/d_{save}.txt) ') or f'd_{save}.txt', 'r') as f:
-            Batch(enumerate(data), *prompt(save, preset=preset)).start(fn)
+            Batch(enumerate(f), *prompt(save, preset=preset)).start(fn)
