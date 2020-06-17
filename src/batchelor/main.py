@@ -147,24 +147,31 @@ class Batch:
         combo()
 
     def help(self):
-        _self_ = '\n\t'.join(['%s=%s'% (k, vars(self)[k]) for k in vars(self)])
-        print(f"""
-data=enumerable object to run through
-rate=how many workers to keep alive at once
-scale=queue scale (0 == rate*rate)
-interval=how fast to spawn new workers
-output=filename to save to
-write=save(output)
-progress=progress file
-checkpoint=save/restore(save=True/False)
-visual=visual status updates
+        print(f'''
+data: enumerate
+    enumerable object to run through
+rate: int (batchelor.__cpu__())
+    how many workers to keep alive at once
+scale: int (0)
+    queue scale (0 == rate*rate)
+interval: int (1)
+    how fast to spawn new workers
+output: str ('_output.txt')
+    filename to save to
+write: function (batchelor.__write__)
+    save(output)
+progress: str ('_progress.txt')
+    progress file
+checkpoint: function (batchelor.__checkpoint__)
+    save/restore(save=True/False)
+visual: function (batchelor.__visual__)  # x ~y +z -a
+    visual status updates
 
 NOTE: every function was made to be easily monkeypatched, so use it if you want.
 
 If you need more help, then look at the source code here: https://github.com/ritzKraka/python-batchelor
-self:
-    {_self_}
-        """)
+
+{vars(self)}''')
 
 
 def prompt(save, preset=False):
