@@ -1,7 +1,30 @@
 from concurrent.futures import ThreadPoolExecutor as __Pool__
 from multiprocessing import cpu_count as __cpu__
 from time import sleep
-from os import system
+from os import system, path
+from sys import argv
+
+fast = [
+    __cpu__() ** 2,
+    0,
+    0.5
+]
+medium = [
+    int(__cpu__() ** 1.5),
+    0,
+    0.75
+]
+default = [
+    __cpu__(),
+    0,
+    1
+]
+slow = [
+    int(__cpu__() / 2),
+    2,
+    2
+]
+__save_name__ = path.basename(argv[0]).split('.')[0]
 
 
 def __checkpoint__(filename: str, save: bool = True, data: int = 0):
@@ -28,7 +51,7 @@ def __write__(info, location):
 
 def __visual__(items, keys=False):
     keys = keys or ["", "~", "+", "-"]
-    system('cls || clear')
+    __system__('cls || clear')
     print(*[f'{keys[i%len(keys)]}{items[i]}' for i in range(len(items))], sep='\t')
 
 
@@ -45,7 +68,7 @@ class Batch:
             checkpoint: callable = __checkpoint__,
             visual: callable = __visual__
     ):
-        copy = list(data)  # greater startup time, but still better then using a list
+        copy = list(data)  # greater startup time, but still better then using only a list
         if isinstance(data, enumerate):
             data = enumerate([x[1] for x in copy])
         else:
@@ -107,8 +130,11 @@ class Batch:
                         sleep(self.interval * self.rate)
                     combo()
 
-                self.workers += 1
-                self.pool.submit(wrapper, (fn, index, item))
+                if item:  # check for falsy
+                    self.workers += 1
+                    self.pool.submit(wrapper, (fn, index, item))
+                else:
+                    self.invalid += 1
 
             self.pool.shutdown(wait=True)
         except:
@@ -124,7 +150,7 @@ class Batch:
         _self_ = '\n\t'.join(['%s=%s'% (k, vars(self)[k]) for k in vars(self)])
         print(f"""
 data: enumerate,
-rate: int = cpu_count(),
+rate: int = __cpu__(),
 scale: int = 0,
 interval: float = 1,
 output: str = '_output.txt',
@@ -132,7 +158,30 @@ write: callable = __write__,
 progress: str = '_progress.txt',
 checkpoint: callable = __checkpoint__,
 visual: callable = __visual__
-If you need more help, then look at the source code here: https://github.com/ritzKraka/batchelor.py/
+If you need more help, then look at the source code here: https://github.com/ritzKraka/python-batchelor
 self:
     {_self_}
         """)
+
+
+def prompt(save, preset=False):
+    return [
+        (
+            preset
+            or
+            [int(input('rate (?/cpu_cores) ') or __cpu__())]
+        )[0],
+        (preset or default)[1],
+        (preset or default)[2],
+        input(f'output file (?/o_{save}.txt) ') or f'o_{save}.txt',
+        __write__,
+        input(f'progress file (?/p_{save}.txt) ') or f'p_{save}.txt'
+    ]
+
+
+def launch(fn: callable, save=__save_name__, data=False, preset=False):
+    if data:
+        Batch(data, *prompt(save, preset=preset)).start(fn)
+    else:
+        with open(input(f'data file (?/d_{save__}.txt) ') or f'd_{save}.txt', 'r') as f:
+            Batch(enumerate(data), *prompt(save, preset=preset)).start(fn)
