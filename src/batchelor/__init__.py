@@ -1,6 +1,6 @@
-__version__ = '0.5'
+__version__ = '0.5.1'
 _start_ = 1
-from main import (
+from .main import (
     __checkpoint__, __write__, __visual__, __save_name__,
     fast, medium, default, slow,
     Batch, prompt, launch
@@ -18,9 +18,7 @@ def __generate__():
             value[k] = globals()[k]
         elif k == '_start_':
             add = True
-
-    global _start_, _end_, __generate__
-    del _start_, _end_, __generate__
     return value
 
 __all__ = __generate__()
+del _start_, _end_, __generate__
