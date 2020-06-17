@@ -149,15 +149,18 @@ class Batch:
     def help(self):
         _self_ = '\n\t'.join(['%s=%s'% (k, vars(self)[k]) for k in vars(self)])
         print(f"""
-data: enumerate,
-rate: int = __cpu__(),
-scale: int = 0,
-interval: float = 1,
-output: str = '_output.txt',
-write: callable = __write__,
-progress: str = '_progress.txt',
-checkpoint: callable = __checkpoint__,
-visual: callable = __visual__
+data=enumerable object to run through
+rate=how many workers to keep alive at once
+scale=queue scale (0 == rate*rate)
+interval=how fast to spawn new workers
+output=filename to save to
+write=save(output)
+progress=progress file
+checkpoint=save/restore(save=True/False)
+visual=visual status updates
+
+NOTE: every function was made to be easily monkeypatched, so use it if you want.
+
 If you need more help, then look at the source code here: https://github.com/ritzKraka/python-batchelor
 self:
     {_self_}
@@ -183,5 +186,5 @@ def launch(fn: callable, save=__save_name__, data=False, preset=False):
     if data:
         Batch(data, *prompt(save, preset=preset)).start(fn)
     else:
-        with open(input(f'data file (?/d_{save__}.txt) ') or f'd_{save}.txt', 'r') as f:
+        with open(input(f'data file (?/d_{save}.txt) ') or f'd_{save}.txt', 'r') as f:
             Batch(enumerate(data), *prompt(save, preset=preset)).start(fn)
