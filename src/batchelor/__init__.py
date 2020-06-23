@@ -1,24 +1,19 @@
-__version__ = '0.5.4'
-_start_ = 1
+__version__ = '0.5.5'
 from .main import (
     __checkpoint__, __write__, __visual__, __save_name__,
-    fast, medium, default, slow,
+    presets, default,
     Batch, prompt, launch
 )
-_end_ = 1
 
 
-def __generate__():
+def __all__():
     add = False
-    value = {}
     for k in globals():
-        if add:
-            if k == '_end_':
-                break
-            value[k] = globals()[k]
-        elif k == '_start_':
+        if k == 'main':
             add = True
-    return value
+        elif k == '__all__':
+            break
+        elif add:
+            yield k
 
-__all__ = __generate__()
-del _start_, _end_, __generate__
+__all__ = tuple(__all__())

@@ -1,30 +1,44 @@
+import argparse
 from concurrent.futures import ThreadPoolExecutor as __Pool__
 from multiprocessing import cpu_count as __cpu__
+from os import path, system
+import sys
 from time import sleep
-from os import system, path
-from sys import argv
 
-fast = [
-    __cpu__() ** 2,
-    0,
-    0.5
-]
-medium = [
-    int(__cpu__() ** 1.5),
-    0,
-    0.75
-]
+
+'''
+set presets
+'''
+
+presets = {
+    'fast': [
+        __cpu__() ** 2,
+        0,
+        0.5
+    ],
+    'medium': [
+        int(__cpu__() ** 1.5),
+        0,
+        0.75
+    ],
+    'default': [
+        __cpu__(),
+        0,
+        1
+    ],
+    'slow': [
+        int(__cpu__() / 2),
+        2,
+        2
+    ]
+}
+__save_name__ = path.basename(sys.argv[0]).split('.')[0]
 default = [
-    __cpu__(),
-    0,
-    1
+    f'd_{__save_name__}.txt',
+    *presets['default'],
+    f'o_{__save_name__}.txt',
+    f'p_{__save_name__}.txt'
 ]
-slow = [
-    int(__cpu__() / 2),
-    2,
-    2
-]
-__save_name__ = path.basename(argv[0]).split('.')[0]
 
 
 def __checkpoint__(filename: str, save: bool = True, data: int = 0):
@@ -50,8 +64,7 @@ def __write__(info, location):
     return []
 
 
-def __visual__(items, keys=False):
-    keys = keys or ["", "~", "+", "-"]
+def __visual__(items, keys=("", "~", "+", "-")):
     system('cls || clear')
     print(*[f'{keys[i%len(keys)]}{items[i]}' for i in range(len(items))], sep='\t')
 
@@ -59,37 +72,33 @@ def __visual__(items, keys=False):
 class Batch:
     def __init__(
             self,
-            data,
+            data: list,
             rate: int = __cpu__(),
             scale: int = 0,
             interval: float = 1,
             output: str = '_output.txt',
-            write: callable = __write__,
             progress: str = '_progress.txt',
+            write: callable = __write__,
             checkpoint: callable = __checkpoint__,
             visual: callable = __visual__
     ):
-        copy = list(data)  # greater startup time, but still better then using only a list
-        if isinstance(data, enumerate):
-            data = enumerate([x[1] for x in copy])
-        else:
-            data = copy
-        self.total = len(copy)
+        data = list(data)  # greater startup time, but still better then using only a list
+        self.total = len(data)
         self.valid = 0
         self.invalid = 0
         self.workers = 0
 
-        self.data = {'in': data, 'out': []}
+        self.data = {'in': enumerate(data), 'out': []}
         self.rate = int(max(rate, 2))
         self.scale = int(max(scale or self.rate, 2))
         self.interval = interval
         self.output = output
-        self.write = write
         self.progress = progress
+        self.write = write
         self.checkpoint = checkpoint
         self.visual = visual
 
-        del copy, data, rate, scale, interval, output, write, progress, checkpoint, visual  # free memory of duplicates
+        del data, rate, scale, interval, output, progress, write, checkpoint, visual  # free memory of duplicates
         self.pool = __Pool__(max_workers=self.rate)
 
     def start(self, fn):
@@ -140,7 +149,7 @@ class Batch:
             self.pool.shutdown(wait=True)
         except:
             try:
-                self.pool.shutdown(wait='n' not in f'{input("finish (Y/n): ")}'.lower())
+                self.pool.shutdown(wait='n' not in f'{input("finish (Y/n) ")}'.lower())
             except:
                 pass
         combo()
@@ -161,12 +170,12 @@ scale: int (0)
     queue scale (0 == rate*rate)
 interval: int (1)
     how fast to spawn new workers
-output: str ('_output.txt')
-    filename to save to
+output: str (dynamically chosen)
+    filename to save results to (passed to write function)
+progress: str (dynamically chosen)
+    progress file (passed to checkpoint function)
 write: function (batchelor.__write__)
     save(output)
-progress: str ('_progress.txt')
-    progress file
 checkpoint: function (batchelor.__checkpoint__)
     save/restore(save=True/False)
 visual: function (batchelor.__visual__)  # x ~y +z -a
@@ -179,24 +188,33 @@ If you need more help, then look at the source code here: https://github.com/rit
 {vars(self)}''')
 
 
-def prompt(save, preset=False):
-    return [
-        (
-            preset
-            or
-            [int(input('rate (?/cpu_cores) ') or __cpu__())]
-        )[0],
-        (preset or default)[1],
-        (preset or default)[2],
-        input(f'output file (?/o_{save}.txt) ') or f'o_{save}.txt',
-        __write__,
-        input(f'progress file (?/p_{save}.txt) ') or f'p_{save}.txt'
-    ]
+'''
+set production-ready functions
+'''
 
 
-def launch(fn: callable, save=__save_name__, data=False, preset=False):
-    if data:
-        Batch(data, *prompt(save, preset=preset)).start(fn)
+def prompt():
+    return {
+        'rate': int(input(f'rate (?/{default[0]}) ') or default[1]),
+        'scale': default[2],
+        'interval': default[2],
+        'output': input(f'output file (?/{default[3]}) ') or default[3],
+        'progress': input(f'progress file (?/{defualt[4]}) ') or default[4],
+    }
+
+
+def launch(fn: callable, save=__save_name__, data=False, use_args=False):
+    if use_args:
+        args = argparse.ArgumentParser()
+        args.add_argument('-d', '--data', type=argparse.FileType('r'), default=data or default[0])
+        args.add_argument('-r', '--rate', type=int, default=default[1])
+        args.add_argument('-s', '--scale', type=int, default=default[2])
+        args.add_argument('-i', '--interval', type=int, default=default[3])
+        args.add_argument('-o', '--output', type=str, default=default[4])
+        args.add_argument('-p', '--progress', type=str, default=default[5])
+        info = vars(args.parse_known_args()[0])
+        del args
     else:
-        with open(input(f'data file (?/d_{save}.txt) ') or f'd_{save}.txt', 'r') as f:
-            Batch(enumerate(f), *prompt(save, preset=preset)).start(fn)
+        info = {'data': data or argparse.FileType('r')(input(f'data file (?/{default[0]}) ') or default[0]), **prompt()}
+
+    Batch(**info).start(fn)
