@@ -1,4 +1,4 @@
-__version__ = '0.5.6'
+__version__ = '0.5.7'
 from .main import (
     __checkpoint__, __write__, __visual__, __save_name__,
     presets, default,

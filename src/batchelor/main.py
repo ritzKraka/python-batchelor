@@ -5,7 +5,7 @@ from os import path, system
 import sys
 from time import sleep
 
-__cpu__ == __cpu__
+__cpu__ == __cpu__()
 '''
 set presets
 '''
