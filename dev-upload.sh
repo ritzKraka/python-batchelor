@@ -6,3 +6,5 @@ git commit
 git push
 sleep 10
 sudo pip install --upgrade batchelor
+clear
+exec $SHELL
