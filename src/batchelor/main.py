@@ -5,29 +5,29 @@ from os import path, system
 import sys
 from time import sleep
 
-
+__cpu__ == __cpu__
 '''
 set presets
 '''
 
 presets = {
     'fast': [
-        __cpu__() ** 2,
+        __cpu__ ** 2,
         0,
         0.5
     ],
     'medium': [
-        int(__cpu__() ** 1.5),
+        int(__cpu__ ** 1.5),
         0,
         0.75
     ],
     'default': [
-        __cpu__(),
+        __cpu__,
         0,
         1
     ],
     'slow': [
-        int(__cpu__() / 2),
+        int(__cpu__ / 2),
         2,
         2
     ]
@@ -73,8 +73,8 @@ class Batch:
     def __init__(
             self,
             data: list,
-            rate: int = __cpu__(),
-            scale: int = 0,
+            rate: int = __cpu__,
+            scale: float = 0,
             interval: float = 1,
             output: str = '_output.txt',
             progress: str = '_progress.txt',
@@ -137,7 +137,7 @@ class Batch:
                 else:
                     while self.workers > self.rate:  # wait until queue is acceptable
                         combo()
-                        sleep(self.interval * self.rate)
+                        sleep(self.interval * self.rate or __cpu__)
                     combo()
 
                 if item:  # check for falsy
@@ -164,7 +164,7 @@ class Batch:
         print(f'''
 data: enumerate
     enumerable object to run through
-rate: int (batchelor.__cpu__())
+rate: int (batchelor.__cpu__)
     how many workers to keep alive at once
 scale: int (0)
     queue scale (0 == rate*rate)
@@ -208,8 +208,8 @@ def launch(fn: callable, save=__save_name__, data=False, use_args=False):
         args = argparse.ArgumentParser()
         args.add_argument('-d', '--data', type=argparse.FileType('r'), default=data or default[0])
         args.add_argument('-r', '--rate', type=int, default=default[1])
-        args.add_argument('-s', '--scale', type=int, default=default[2])
-        args.add_argument('-i', '--interval', type=int, default=default[3])
+        args.add_argument('-s', '--scale', type=float, default=default[2])
+        args.add_argument('-i', '--interval', type=float, default=default[3])
         args.add_argument('-o', '--output', type=str, default=default[4])
         args.add_argument('-p', '--progress', type=str, default=default[5])
         info = vars(args.parse_known_args()[0])
