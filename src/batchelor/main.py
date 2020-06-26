@@ -5,7 +5,7 @@ from os import path, system
 import sys
 from time import sleep
 
-__cpu__ == __cpu__()
+__cpu__ = __cpu__()
 '''
 set presets
 '''
@@ -166,9 +166,9 @@ data: enumerate
     enumerable object to run through
 rate: int (batchelor.__cpu__)
     how many workers to keep alive at once
-scale: int (0)
+scale: float (0)
     queue scale (0 == rate*rate)
-interval: int (1)
+interval: float (1)
     how fast to spawn new workers
 output: str (dynamically chosen)
     filename to save results to (passed to write function)

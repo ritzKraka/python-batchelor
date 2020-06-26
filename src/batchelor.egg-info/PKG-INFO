@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: batchelor
-Version: 0.5.7
+Version: 0.5.8
 Summary: A simple, yet effective batching system using threadpoolexecutor.
 Home-page: https://github.com/ritzKraka/python-batchelor
 Author: ritz Kraka
